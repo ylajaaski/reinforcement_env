@@ -1,0 +1,7 @@
+name : supervised_learning
+dependencies :
+  - pip
+  - pip :
+    - torch
+    - matplotlib
+    - torchvision
