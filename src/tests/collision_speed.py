@@ -1,4 +1,4 @@
-from src.envs.collision import Collision, Ball, Debug
+from src.envs.collision_v0.collision import Collision, Ball, Debug
 import time 
 import pandas as ps
 import os 
