@@ -7,6 +7,15 @@ from src.tests.collision_v0.collision_speed import *
 '''
 Testing performance and dynamics of the environments is possible with this script. The testing scripts can
 be found from <src/tests>. 
+
+Required args:
+
+    environment  : name of the environment
+    test         : name of the test
+    file         : name of the file where results are saved
+
+Optional args:
+    episodes : number of episodes
 '''
 
 ap = argparse.ArgumentParser()
@@ -32,7 +41,5 @@ def main():
         else:
             tests[test](args["file"])
         
-
-
 if __name__ == "__main__":
     main()
