@@ -11,7 +11,7 @@ def collision_test(csv_name):
     times = ps.DataFrame(data={})
     for count in BALLS:
         a = Debug(800, 800, 10, (200, 10), 1)
-        env = Collision(800, 800, a, count)
+        env = Collision(800, 800, count, a)
         start = time.time()
         for _ in range(ITER):
             action = (0,0)

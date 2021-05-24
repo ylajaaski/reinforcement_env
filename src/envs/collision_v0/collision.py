@@ -125,7 +125,7 @@ class Agent(Player):
         self.max_speed = 6
         self.timestep = timestep 
     
-    def valid_position(self, position, ball_list):
+    def valid_state(self, position, ball_list):
         positions = np.array(list(map(lambda x: x.position, ball_list)))
         sizes = np.array(list(map(lambda x: x.radius, ball_list)))
         stacked_positions = np.stack([self.position for _ in range(positions.shape[0])], axis = 1)
@@ -139,7 +139,7 @@ class Agent(Player):
     
     def move(self, action, ball_list):
         position = self.position + action
-        if self.valid_position(position, ball_list):
+        if self.valid_state(position, ball_list):
             self.position += action * self.timestep 
             return True
         else:
@@ -157,12 +157,12 @@ class Debug(Player):
         self.max_speed = 6
         self.timestep = timestep 
     
-    def valid_position(self, position, ball_list):
+    def valid_state(self, position, ball_list):
         return True
     
     def move(self, action, ball_list):
         position = self.position + action
-        if self.valid_position(position, ball_list):
+        if self.valid_state(position, ball_list):
             self.position += action * self.timestep 
             return True
         else:

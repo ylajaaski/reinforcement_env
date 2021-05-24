@@ -1,7 +1,7 @@
 from src.envs.collision_v0.collision import Collision, Agent, Ball, Debug
 import numpy as np 
 
-def run():
+def collision_v0():
 
     a = Debug(400, 400, 10, (100, 200), 1)
     env = Collision(400, 400, 30, a)

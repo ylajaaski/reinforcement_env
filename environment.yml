@@ -1,7 +1,8 @@
-name : supervised_learning
+name : reinforcement_env
 dependencies :
   - pip
   - pip :
     - torch
     - matplotlib
-    - torchvision
+    - opencv-python
+    - pandas

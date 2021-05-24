@@ -1,2 +1,4 @@
 torch
 matplotlib
+opencv-python
+pandas 
