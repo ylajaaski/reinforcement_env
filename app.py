@@ -12,13 +12,15 @@ Required args:
     train (bool) : 1 used for training
 
 Optional args:
-    episodes : number of episodes
+    episodes  : number of episodes
+    rendering : type of rendering can be, none, not_saved or saved
 '''
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-env", "--environment", required=True, help="Name of the environment e.g. collision_v0")
 ap.add_argument("-t", "--train", required=True, help="You can either train or test an agent")
 ap.add_argument("-eps", "--episodes", default = 1000, help="Episodes before the training/testing ends")
+ap.add_argument("-r", "--rendering", default ="none", help = "You can visualize and even save the rendering as a video.")
 args = vars(ap.parse_args())
 
 environments = {"collision_v0": collision_v0} # Possible environments

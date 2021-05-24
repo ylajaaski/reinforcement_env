@@ -20,7 +20,7 @@ def collision_test(csv_name):
         times[count] = [end - start]
     
     path = os.getcwd()
-    save_path = path + "/results/tests/{}.csv".format(csv_name)
+    save_path = path + "/results/tests/collision_v0/speed/{}.csv".format(csv_name)
     times.to_csv(save_path)
 
 
