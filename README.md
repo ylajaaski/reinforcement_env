@@ -9,12 +9,15 @@ This toolkit works in similar fashion compared to the *OpenAI Gym*. Reinforcemen
 ## Setup
 
 Clone the repository with:
+
 `git clone git@github.com:ylajaaski/reinforcement_env.git`
 
 Then create the required environment with:
+
 `conda env create -f environment.yml`
 
 You can train and test different environment and agents with `app.py`. To get some help run:
+
 `python app.py -help`
 
 ## Creating own environments and agents
