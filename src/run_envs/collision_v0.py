@@ -5,7 +5,7 @@ import numpy as np
 def collision_v0():
 
     agent = Agent(400, 400, 10, 1)
-    env = Collision(400, 400, 30, agent)
+    env = Collision(400, 400, 30)#, agent)
 
     for _ in range(10000):
         action = env.player.get_action(env.state)

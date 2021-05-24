@@ -17,7 +17,6 @@ class Collision(Environment):
         
         # Initially the position of the agent is randomized.
         player_position = np.array([np.random.random()*(width - 2*ball_size)+player_size, np.random.random()*(height - 2*ball_size)+player_size])
-        print(player is None)
         if player is None:
             self.player = Debug(width, height, player_size, player_position, timestep)
         else:
@@ -48,12 +47,14 @@ class Collision(Environment):
     
     def step(self, action):
         
-        # TODO: Optimize in the future 
         distances = self.distances()
-        for i, b1 in enumerate(self.balls):
-            for j, b2 in enumerate(self.balls):
-                if distances[i][j] < (b1.radius + b2.radius)**2 and i != j:
+        for i in range(self.num_balls):
+            for j in range(i+1,self.num_balls):
+                b1 = self.balls[i]
+                b2 = self.balls[j]
+                if distances[i][j] < (b1.radius + b2.radius)**2:
                     b1.update_speed(b2.speed, b2.position)
+                    b2.update_speed(b1.speed, b1.position)
         
         for b in self.balls:
             b.move()
@@ -103,6 +104,11 @@ class Ball(Entity):
         self.position = position 
         self.speed = np.array([np.random.random()*2-1, np.random.random()*2-1])
         self.changed_speed = 0
+
+        self.left = self.position[0] - self.radius
+        self.right = self.position[0] + self.radius
+        self.bottom = self.position[1] + self.radius
+        self.top = self.position[1] - self.radius
     
     def move(self):
         
