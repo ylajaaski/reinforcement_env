@@ -4,7 +4,13 @@ import cv2 as cv
 
 class Collision(Environment):
 
-    def __init__(self, width, height, player, num_balls, ball_size = 20, player_size = 10, timestep = 1):
+    def __init__(self, width, height, num_balls, player = None, ball_size = 20, player_size = 10, timestep = 1):
+        
+        if player is None:
+            self.player = Debug(width, height, player_size, (0,0), timestep)
+        else:
+            self.player = Agent(width, height, player_size, (0,0), timestep)
+
         self.width = width
         self.height = height
         self.timestep = timestep 
