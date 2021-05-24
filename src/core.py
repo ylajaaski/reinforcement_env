@@ -87,6 +87,24 @@ class Player(object):
         might want to always return True.
         '''
         raise NotImplementedError
+    
+    def get_action(self, state):
+        '''
+        Given a state determines the next action of the Player.
+
+        Args:
+            state (object) : state of the agent e.g. sequence of frames
+        
+        Returns:
+            action (object) : an action that is used to move the agent
+        '''
+        raise NotImplementedError
+    
+    def reset(self):
+        '''
+        Resets the state of the player
+        '''
+        raise NotImplementedError
 
 class Entity(object):
     '''

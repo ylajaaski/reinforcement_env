@@ -17,15 +17,15 @@ class Collision(Environment):
         
         # Initially the position of the agent is randomized.
         player_position = np.array([np.random.random()*(width - 2*ball_size)+player_size, np.random.random()*(height - 2*ball_size)+player_size])
+        print(player is None)
         if player is None:
             self.player = Debug(width, height, player_size, player_position, timestep)
         else:
-            self.player = Agent(width, height, player_size, player_position, timestep)
+            self.player = player #Agent(width, height, player_size, player_position, timestep)
 
         self.width = width
         self.height = height
         self.timestep = timestep 
-        self.player = player
         self.num_balls = num_balls
         
         balls = []
@@ -36,7 +36,7 @@ class Collision(Environment):
             ball = Ball(width, height, pos, ball_size, BALL_COLOR, timestep)
             valid = True
             for b in balls:
-                if np.sum((b.position - ball.position)**2) < (ball.radius + b.radius)**2 or np.sum((ball.position - player.position)**2) < (ball.radius + player.radius)**2:
+                if np.sum((b.position - ball.position)**2) < (ball.radius + b.radius)**2 or np.sum((ball.position - self.player.position)**2) < (ball.radius + self.player.radius)**2:
                     valid = False
             if valid:
                 balls.append(ball)
@@ -60,7 +60,7 @@ class Collision(Environment):
         
         done = not self.player.move(action, self.balls)
         self.state = self.draw()
-        reward = 0
+        reward = not done
         info = None 
         return self.state, reward, done, info
          
@@ -124,38 +124,6 @@ class Ball(Entity):
             if not (position == self.position).all():
                 self.changed_speed -= (self.speed - speed) @ (self.position - position) / np.sum((self.position - position)**2) * (self.position - position)
 
-class Agent(Player):
-    
-    def __init__(self, env_width, env_height, radius, position, timestep):
-        self.env_width = env_width
-        self.env_height = env_height
-        self.radius = radius
-        self.position = position
-        self.color = PLAYER_COLOR
-        self.speed = np.zeros(2)
-        self.max_speed = 6
-        self.timestep = timestep 
-    
-    def valid_state(self, position, ball_list):
-        positions = np.array(list(map(lambda x: x.position, ball_list)))
-        sizes = np.array(list(map(lambda x: x.radius, ball_list)))
-        stacked_positions = np.stack([self.position for _ in range(positions.shape[0])], axis = 1)
-        if np.any(np.sum((stacked_positions - positions.T)**2, axis = 0) - (self.radius + sizes)**2 < 0):
-            return False
-        elif position[0] < self.radius or position[0] > self.env_width - self.radius or \
-             position[1] < self.radius or position[1] > self.env_height - self.radius:
-            return False
-        else:
-            return True
-    
-    def move(self, action, ball_list):
-        position = self.position + action
-        if self.valid_state(position, ball_list):
-            self.position += action * self.timestep 
-            return True
-        else:
-            return False
-
 class Debug(Player):
 
     def __init__(self, env_width, env_height, radius, position, timestep):
@@ -178,3 +146,9 @@ class Debug(Player):
             return True
         else:
             return False
+    
+    def get_action(self, state):
+        return 0
+    
+    def reset(self):
+        return 
