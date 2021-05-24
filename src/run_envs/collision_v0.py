@@ -7,6 +7,8 @@ def collision_v0():
     env = Collision(400, 400, 30, a)
 
     for _ in range(10000):
-        action = np.random.random()*12 - 6
-        env.step(action)
+        action = np.random.random(2)*12 - 6
+        ob, reward, done, _ = env.step(action)
         env.render()
+        if done:
+            env.reset()

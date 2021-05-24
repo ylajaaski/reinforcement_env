@@ -58,12 +58,11 @@ class Collision(Environment):
         for b in self.balls:
             b.move()
         
-        action = np.random.random(2)*12 - 6
         done = not self.player.move(action, self.balls)
         self.state = self.draw()
-        # TODO: return obseration, action, reward, done 
-        if done:
-            self.reset()
+        reward = 0
+        info = None 
+        return self.state, reward, done, info
          
     def reset(self):
         self.__init__(self.width, self.height, self.num_balls, self.player)
