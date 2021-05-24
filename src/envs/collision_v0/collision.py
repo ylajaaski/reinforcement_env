@@ -8,8 +8,16 @@ BACKGROUND = (255, 230, 200) # light blue
 
 class Collision(Environment):
     '''
-    Simple environment with entities (balls) bouncing around. The goal of the agent is to avoid
-    collisions with the balls as long as possible.
+    Simple environment with entities (balls) bouncing around. The collisions between the balls are 
+    assumed to be elastic. The goal of the agent is to avoid collisions with the balls as long as possible.
+    For more information about this environment see: "doc/envs/collision_v0.pdf".
+
+    Observation:
+        The environment is fully observable by the agent:
+        - numpy array shaped self.width * self.height * 3
+    
+    Reward:
+        Reward is 1 for every survived timestep.
     '''
 
     def __init__(self, width, height, num_balls, player = None, ball_size = 20, player_size = 10, timestep = 1):
