@@ -2,14 +2,25 @@ from src.core import *
 import numpy as np
 import cv2 as cv
 
+BALL_COLOR = (0,0,255) # red
+PLAYER_COLOR = (31, 120, 10) # dark green
+BACKGROUND = (255, 230, 200)  # light blue
+
 class Collision(Environment):
+    '''
+    Simple environment with entities (balls) bouncing around. The goal of the agent is to avoid
+    collisions with the balls as long as possible.
+    '''
 
     def __init__(self, width, height, num_balls, player = None, ball_size = 20, player_size = 10, timestep = 1):
+        assert width > 100 and height > 100
         
+        # Initially the position of the agent is randomized.
+        player_position = np.array([np.random.random()*(width - 2*ball_size)+player_size, np.random.random()*(height - 2*ball_size)+player_size])
         if player is None:
-            self.player = Debug(width, height, player_size, (0,0), timestep)
+            self.player = Debug(width, height, player_size, player_position, timestep)
         else:
-            self.player = Agent(width, height, player_size, (0,0), timestep)
+            self.player = Agent(width, height, player_size, player_position, timestep)
 
         self.width = width
         self.height = height
@@ -19,67 +30,68 @@ class Collision(Environment):
         
         balls = []
         counter = 0
+        # Making sure that new balls do not go on top of each other, and not on top of the agent.
         while counter < num_balls:
             pos = np.array([np.random.random()*(width - 2*ball_size)+ball_size, np.random.random()*(height - 2*ball_size)+ball_size])
-            ball = Ball(width, height, pos, ball_size, (0,0,255), timestep)
+            ball = Ball(width, height, pos, ball_size, BALL_COLOR, timestep)
             valid = True
             for b in balls:
-                if np.sum((b.position - ball.position)**2) < (ball.radius + b.radius)**2:
+                if np.sum((b.position - ball.position)**2) < (ball.radius + b.radius)**2 or np.sum((ball.position - player.position)**2) < (ball.radius + player.radius)**2:
                     valid = False
             if valid:
                 balls.append(ball)
                 counter += 1
         
         self.balls = balls
-        self.state = self._draw()
+        self.state = self.draw()
         
     
     def step(self, action):
         
-        # Optimize in the future 
-        distances = self._distances()
+        # TODO: Optimize in the future 
+        distances = self.distances()
         for i, b1 in enumerate(self.balls):
             for j, b2 in enumerate(self.balls):
                 if distances[i][j] < (b1.radius + b2.radius)**2 and i != j:
                     b1.update_speed(b2.speed, b2.position)
-
         
         for b in self.balls:
             b.move()
         
         action = np.random.random(2)*12 - 6
         done = not self.player.move(action, self.balls)
-        self.state = self._draw()
+        self.state = self.draw()
         # TODO: return obseration, action, reward, done 
         if done:
             self.reset()
-        
-        
+         
     def reset(self):
-        self.__init__(self.width, self.height, self.player, self.num_balls)
+        self.__init__(self.width, self.height, self.num_balls, self.player)
 
-    
     def render(self):
         cv.imshow("Blank", self.state)
         cv.waitKey(33)
     
-    def _draw(self):
+    def draw(self):
+        '''
+        Draws the environment which is the observation of the agent.
+        '''
         blank = np.zeros((self.width,self.height,3), dtype = "uint8")
-        blank[:] = (255, 230, 200) 
+        blank[:] = BACKGROUND
 
         for b in self.balls:
-            cv.circle(blank, (int(round(b.position[0])), int(round(b.position[1]))), b.radius, (0, 0, 255), thickness = -1, lineType=cv.LINE_AA)
+            cv.circle(blank, (int(round(b.position[0])), int(round(b.position[1]))), b.radius, b.color, thickness = -1, lineType=cv.LINE_AA)
         
-        cv.circle(blank, (int(round(self.player.position[0])), int(round(self.player.position[1]))), self.player.radius, (31, 120, 10), thickness = -1, lineType=cv.LINE_AA)
+        cv.circle(blank, (int(round(self.player.position[0])), int(round(self.player.position[1]))), self.player.radius, self.player.color, thickness = -1, lineType=cv.LINE_AA)
         return blank 
 
-
-    
-    def _distances(self):
-        result = np.array(list(map(lambda x: x.position, self.balls)))
-        a = np.stack([result for _ in range(result.shape[0])], axis = 1)
-        return np.sum((a - result)**2, axis = -1)
-
+    def distances(self):
+        '''
+        Returns the distances between all the balls as a matrix
+        '''
+        positions = np.array(list(map(lambda x: x.position, self.balls)))
+        stacked_positions = np.stack([positions for _ in range(positions.shape[0])], axis = 1)
+        return np.sum((stacked_positions - positions)**2, axis = -1)
 
 class Ball(Entity):
     
@@ -89,7 +101,7 @@ class Ball(Entity):
         self.radius = radius
         self.color = color
         self.timestep = timestep 
-        self.position = position #np.array([np.random.random()*755+22.5, np.random.random()*765+22.5])
+        self.position = position 
         self.speed = np.array([np.random.random()*2-1, np.random.random()*2-1])
         self.changed_speed = 0
     
@@ -120,7 +132,7 @@ class Agent(Player):
         self.env_height = env_height
         self.radius = radius
         self.position = position
-        self.color = (31, 120, 10) 
+        self.color = PLAYER_COLOR
         self.speed = np.zeros(2)
         self.max_speed = 6
         self.timestep = timestep 
@@ -152,7 +164,7 @@ class Debug(Player):
         self.env_height = env_height
         self.radius = radius
         self.position = position
-        self.color = (31, 120, 10) 
+        self.color = PLAYER_COLOR
         self.speed = np.zeros(2)
         self.max_speed = 6
         self.timestep = timestep 

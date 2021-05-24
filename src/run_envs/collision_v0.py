@@ -3,7 +3,7 @@ import numpy as np
 
 def collision_v0():
 
-    a = Debug(400, 400, 10, (100, 200), 1)
+    a = Agent(400, 400, 10, (100, 200), 1)
     env = Collision(400, 400, 30, a)
 
     for _ in range(10000):
