@@ -90,7 +90,7 @@ class Player(object):
     
     def get_action(self, state):
         '''
-        Given a state determines the next action of the Player.
+        Given a state determines the next action of the Player which is used during testing.
 
         Args:
             state (object) : state of the agent e.g. sequence of frames
@@ -99,6 +99,20 @@ class Player(object):
             action (object) : an action that is used to move the agent
         '''
         raise NotImplementedError
+    
+    def get_training_action(self, state):
+        '''
+        Given a state determines the next action of the Player which is used during training.
+
+        Args:
+            state (object) : state of the agent e.g. sequence of frames
+        
+        Returns:
+            action (object)     : an action that is used to move the agent
+            state_value (float) : value for the state
+        '''
+        raise NotImplementedError
+
     
     def reset(self):
         '''

@@ -1,4 +1,5 @@
 from src.core import Player
+from src.utils import transform_frame
 import numpy as np 
 import torch
 import torch.nn as nn
@@ -9,6 +10,7 @@ PLAYER_COLOR = (31, 120, 10) # dark green
 
 class Agent(Player):
     
+    # TODO: add n_size to initialization to choose the interpolated frame size
     def __init__(self, env_width, env_height, radius, timestep):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.env_width = env_width
@@ -19,6 +21,12 @@ class Agent(Player):
         self.max_speed = 6
         self.timestep = timestep
         self.network = Policy().to(self.device)
+        self.previous_frames = []
+        self.rewards = []
+        self.log_probs = []
+        self.state_values = []
+        self.actions = []
+        self.entropies = []
 
         player_position = np.array([np.random.random()*(env_width - 2*radius)+radius, np.random.random()*(env_height - 2*radius)+radius])
         self.position = player_position
@@ -46,8 +54,36 @@ class Agent(Player):
     def get_action(self, state):
         return np.random.random(2)*12 - 6
     
+    def get_training_action(self, state):
+        # Resize and grascale
+        frame = transform_frame(state, 150) # TODO: n_size = 150
+
+        state = self.frames_to_state(frame).to(self.device)
+
+        policy_distr, state_value = self.network(state)
+
+        # Sample an action from the policy distribution 
+        x_action = policy_distr[0].sample() 
+        y_action = policy_distr[1].sample()
+        action = (x_action,y_action)
+
+        log_probability = policy_distr[0].log_prob(x_action) + policy_distr[1].log_prob(y_action)
+
+        # Determine entropy
+        entropy = policy_distr[0].entropy() + policy_distr[1].entropy()
+
+        return action, log_probability, state_value, entropy
+
+    
     def reset(self):
         return
+    
+    def frames_to_state(self, current_frame):
+        if not self.previous_frames:
+            self.previous_frames = [current_frame]  
+        frame_stack = torch.stack((self.previous_frames[0].T, current_frame.T), dim = 0)
+        self.previous_frames = [current_frame]
+        return frame_stack 
 
 class Policy(nn.Module):
 
@@ -75,9 +111,10 @@ class Policy(nn.Module):
 
         # Convolutional layers
         x = self.conv(state)
-        
+
         # Fully connected layers
-        x = x.reshape(1, 20*71*71)
+        batch_size = x.shape[0]
+        x = x.reshape(batch_size, 20*71*71)
         x = self.fc(x)
 
         # State value
