@@ -2,11 +2,12 @@ from src.core import *
 from src.envs.collision_v0.entities import *
 import numpy as np
 import cv2 as cv
+from queue import PriorityQueue
 
 BALL_COLOR = (0,0,255) # red
 BACKGROUND = (255, 230, 200) # light blue
 
-class Collision(Environment):
+class Collision_v0(Environment):
     '''
     Simple environment with entities (balls) bouncing around. The collisions between the balls are 
     assumed to be elastic. The goal of the agent is to avoid collisions with the balls as long as possible.

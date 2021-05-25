@@ -1,4 +1,4 @@
-from src.envs.collision_v0.collision import Collision, Debug
+from src.envs.collision_v0.collision import Collision_v0, Debug
 from src.envs.dynamics import *
 import pandas as ps
 import os 
@@ -15,7 +15,7 @@ def dynamics_test(csv_name):
     m = ps.DataFrame(data={})
     for count in BALLS:
         a = Debug(800, 800, 10, (200, 10), 1)
-        env = Collision(800, 800, count, a)
+        env = Collision_v0(800, 800, count, a)
         for _ in range(ITER):
             action = (0,0)
             energy_.append(energy(env.balls))
