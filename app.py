@@ -34,6 +34,7 @@ def main():
         print("<" + env + ">" + " is not part of the possible environments:")
         print(list(environments))
     else:
+        print("Started...")
         globals()[env]()
         
 if __name__ == "__main__":

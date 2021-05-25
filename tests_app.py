@@ -45,7 +45,7 @@ def main():
             print("<" + test + ">" + " is not part of the possible tests:")
             print(list(tests))
         else:
-            print(test)
+            print("Started testing...")
             globals()[test](file)
         
 if __name__ == "__main__":
