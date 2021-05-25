@@ -63,7 +63,7 @@ class Policy(nn.Module):
                         nn.MaxPool2d(kernel_size = 2))
 
         self.fc = nn.Sequential(
-                        nn.Linear(in_features = 10, out_features = 200),
+                        nn.Linear(in_features = 20*71*71, out_features = 200),
                         nn.ReLU())
         
         self.x_speed = nn.Linear(in_features = 200, out_features = 6)
@@ -75,9 +75,9 @@ class Policy(nn.Module):
 
         # Convolutional layers
         x = self.conv(state)
-
+        
         # Fully connected layers
-        x = x.reshape(1) #??????
+        x = x.reshape(1, 20*71*71)
         x = self.fc(x)
 
         # State value

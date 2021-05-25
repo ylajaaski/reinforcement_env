@@ -26,7 +26,7 @@ def transform_frame(frame, n):
         n (int)             : new size of the frame (n*n*3)
     
     Returns:
-        frame (numpy array) : shaped n*n*3
+        frame (torch tensor) : shaped n*n*3
 
     '''
     shape = frame.shape
@@ -40,8 +40,10 @@ def transform_frame(frame, n):
     batch = torch.from_numpy(current_frame).unsqueeze(0)
     batch = F.interpolate(batch.float(), (n, n))
     small_frame = batch.squeeze(0)
-    small_frame = np.array(small_frame)
-    return np.expand_dims(-small_frame[0,:,:], axis = -1)
+    #print("small:", small_frame.shape)
+    small_frame = small_frame.permute(1,2,0)
+    #small_frame = np.array(small_frame)
+    return small_frame #-small_frame[0,:,:].unsqueeze(dim = -1)
 
 def discount_rewards(r, gamma):
     '''
