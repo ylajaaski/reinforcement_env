@@ -10,7 +10,7 @@ This toolkit works in similar fashion compared to the *OpenAI Gym*. Reinforcemen
 
 Clone the repository with:
 
-`git clone git@github.com:ylajaaski/reinforcement_env.git`
+`git clone https://github.com/ylajaaski/reinforcement_env.git`
 
 Then create the required environment with:
 
