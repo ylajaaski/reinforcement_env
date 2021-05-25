@@ -40,10 +40,7 @@ def transform_frame(frame, n):
     batch = torch.from_numpy(current_frame).unsqueeze(0)
     batch = F.interpolate(batch.float(), (n, n))
     small_frame = batch.squeeze(0)
-    #print("small:", small_frame.shape)
-    small_frame = small_frame.permute(1,2,0)
-    #small_frame = np.array(small_frame)
-    return small_frame #-small_frame[0,:,:].unsqueeze(dim = -1)
+    return -small_frame[0,:,:].unsqueeze(dim = -1)
 
 def discount_rewards(r, gamma):
     '''
