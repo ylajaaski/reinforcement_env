@@ -1,6 +1,8 @@
 import argparse
+import os 
+from src.utils import listdir_nohidden
 
-# Environment tests
+# Environments
 from src.run_envs.collision_v0 import *
 
 '''
@@ -23,15 +25,16 @@ ap.add_argument("-eps", "--episodes", default = 1000, help="Episodes before the 
 ap.add_argument("-r", "--rendering", default ="none", help = "You can visualize and even save the rendering as a video.")
 args = vars(ap.parse_args())
 
-environments = {"collision_v0": collision_v0} # Possible environments
+env_path = "src/envs"
+environments = [name for name in listdir_nohidden(env_path) if os.path.isdir(os.path.join(env_path, name))]
 env = args["environment"]
 
 def main():
     if env not in environments:
         print("<" + env + ">" + " is not part of the possible environments:")
-        print(list(environments.keys()))
+        print(list(environments))
     else:
-        environments[env]()
+        globals()[env]()
         
 if __name__ == "__main__":
     main()

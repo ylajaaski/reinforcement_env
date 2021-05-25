@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
+import torch.nn as nn
+import os 
 
 def rgb2gray(rgb):
     '''
@@ -40,3 +42,42 @@ def transform_frame(frame, n):
     small_frame = batch.squeeze(0)
     small_frame = np.array(small_frame)
     return np.expand_dims(-small_frame[0,:,:], axis = -1)
+
+def discount_rewards(r, gamma):
+    '''
+    Discounted sum of the rewards : r_t + gamma * r_{t+1} + gamma^2 * r_{t+2} ...
+
+    Args:
+        r (list)      : List of rewards returned by the environment
+        gamma (float) : discount factor
+    
+    Return:
+        dr (float) : discounted sum of the rewards
+    '''
+    discounted_r = torch.zeros_like(r)
+    running_add = 0
+    for t in reversed(range(0, r.size(-1))):
+        running_add = running_add * gamma + r[t]
+        discounted_r[t] = running_add
+    return discounted_r
+
+
+class PrintLayer(nn.Module):
+    '''
+    Print layer shapes inside a sequential structure
+    '''
+    def __init__(self):
+        super(PrintLayer, self).__init__()
+    
+    def forward(self, x):
+        # Do your print / debug stuff here
+        print(x.shape)
+        return x
+
+def listdir_nohidden(path):
+    '''
+    Extension to os.listdir to ignore files starting with '.' or '_'
+    '''
+    for f in os.listdir(path):
+        if not (f.startswith('.') or f.startswith('_')):
+            yield f

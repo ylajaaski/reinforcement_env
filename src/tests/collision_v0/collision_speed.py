@@ -6,7 +6,7 @@ import os
 ITER = 1000 #10000
 BALLS = [10, 20, 40, 80, 160]
 
-def collision_test(csv_name):
+def collision_speed(csv_name):
 
     times = ps.DataFrame(data={})
     for count in BALLS:

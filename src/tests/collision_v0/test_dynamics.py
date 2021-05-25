@@ -6,7 +6,7 @@ import os
 ITER = 10000 #10000
 BALLS = [20, 40, 80]
 
-def dynamics_test(csv_name):
+def test_dynamics(csv_name):
 
     energy_ = []
     momentum_ = []
