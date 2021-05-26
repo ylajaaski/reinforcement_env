@@ -74,7 +74,7 @@ class Agent(Player):
         policy_distr, _ = self.network.forward(state)
         
         # Take action with the highest probability 
-        action = torch.argmax(policy_distr.probs)[1] 
+        action = torch.argmax(policy_distr.probs)
 
         return action
     
@@ -87,7 +87,7 @@ class Agent(Player):
         policy_distr, state_value = self.network(state)
 
         # Sample an action from the policy distribution 
-        action = policy_distr.sample()[1]
+        action = policy_distr.sample()
 
         log_probability = policy_distr.log_prob(action)
 
@@ -129,11 +129,11 @@ class Agent(Player):
         self.entropies = []
 
         # Advantage estimates:
-        state_values = state_values.T[1]
+        #state_values = state_values 
         adv_ests = returns - state_values
 
         # Policy loss:
-        log_probs = log_probs.T[1]
+        log_probs = log_probs 
         l_PG = -torch.mean(adv_ests.detach() * log_probs)
 
         # Value loss:
@@ -165,16 +165,19 @@ class Policy(nn.Module):
     def __init__(self):
         super(Policy, self).__init__()
         self.conv = nn.Sequential(
-                        nn.Conv2d(in_channels = 1, out_channels =  20, kernel_size = 5),
+                        nn.Conv2d(in_channels = 1, out_channels =  20, kernel_size = 10, stride = 2),
                         nn.BatchNorm2d(20),
                         nn.ReLU(),
-                        nn.Conv2d(in_channels = 20, out_channels =  20, kernel_size = 5),
+                        nn.Conv2d(in_channels = 20, out_channels =  20, kernel_size = 10, stride = 2),
                         nn.BatchNorm2d(20),
+                        nn.ReLU(),
+                        nn.Conv2d(in_channels = 20, out_channels =  10, kernel_size = 10),
+                        nn.BatchNorm2d(10),
                         nn.ReLU(),
                         nn.MaxPool2d(kernel_size = 2))
 
         self.fc = nn.Sequential(
-                        nn.Linear(in_features = 20*71*71, out_features = 200),
+                        nn.Linear(in_features = 2*10*11*11, out_features = 200),
                         nn.ReLU())
         
         self.speed = nn.Linear(in_features = 200, out_features = 4)
@@ -187,8 +190,8 @@ class Policy(nn.Module):
         x = self.conv(state)
 
         # Fully connected layers
-        batch_size = x.shape[0]
-        x = x.reshape(batch_size, 20*71*71)
+        #batch_size = x.shape[0]
+        x = x.reshape(1, 2*10*11*11)
         x = self.fc(x)
 
         # State value
