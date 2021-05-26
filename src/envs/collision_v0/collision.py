@@ -2,7 +2,6 @@ from src.core import *
 from src.envs.collision_v0.entities import *
 import numpy as np
 import cv2 as cv
-from queue import PriorityQueue
 
 BALL_COLOR = (0,0,255) # red
 BACKGROUND = (255, 230, 200) # light blue
@@ -29,12 +28,14 @@ class Collision_v0(Environment):
         if player is None:
             self.player = Debug(width, height, player_size, player_position, timestep)
         else:
-            self.player = player #Agent(width, height, player_size, player_position, timestep)
+            self.player = player#.reset(player_position) #Agent(width, height, player_size, player_position, timestep)
 
         self.width = width
         self.height = height
         self.timestep = timestep 
         self.num_balls = num_balls
+        self.ball_size = ball_size
+        self.player_size = player_size
         
         balls = []
         counter = 0
@@ -43,6 +44,7 @@ class Collision_v0(Environment):
             pos = np.array([np.random.random()*(width - 2*ball_size)+ball_size, np.random.random()*(height - 2*ball_size)+ball_size])
             ball = Ball(width, height, pos, ball_size, BALL_COLOR, timestep)
             valid = True
+            #print(self.player)
             for b in balls:
                 if np.sum((b.position - ball.position)**2) < (ball.radius + b.radius)**2 or np.sum((ball.position - self.player.position)**2) < (ball.radius + self.player.radius)**2:
                     valid = False
@@ -76,6 +78,7 @@ class Collision_v0(Environment):
          
     def reset(self):
         self.__init__(self.width, self.height, self.num_balls, self.player)
+        return self.state 
 
     def render(self):
         cv.imshow("Blank", self.state)

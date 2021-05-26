@@ -61,7 +61,7 @@ class Environment(object):
             seeds["gpflow"] = None
 
         return seeds
-
+    
 class Player(object):
     '''
     Each environment has a player that takes some actions to gather rewards.
@@ -119,6 +119,19 @@ class Player(object):
         Resets the state of the player
         '''
         raise NotImplementedError
+    
+    def save_model(self):
+        '''
+        Saves the information about the agent network.
+        '''
+        raise NotImplementedError
+    
+    def load_model(self):
+        '''
+        Loads the information about the saved agent network.
+        '''
+        raise NotImplementedError
+        
 
 class Entity(object):
     '''

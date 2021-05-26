@@ -68,3 +68,9 @@ class Debug(Player):
     
     def reset(self):
         return 
+    
+    def load_model(self):
+        return
+    
+    def save_model(self):
+        return

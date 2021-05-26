@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 import os 
+import cv2 as cv
 
 def rgb2gray(rgb):
     '''
@@ -80,3 +81,19 @@ def listdir_nohidden(path):
     for f in os.listdir(path):
         if not (f.startswith('.') or f.startswith('_')):
             yield f
+
+def render_video(path):
+    '''
+    Renders a video provided as a path.
+
+    Args:
+        path (numpy array, compressed format) : array of frames
+    '''
+    # TODO: support for compressed format
+    video = np.load(path)
+
+    for frame in video:
+        cv.imshsow("", frame)
+        cv.waitKey(33)
+
+    

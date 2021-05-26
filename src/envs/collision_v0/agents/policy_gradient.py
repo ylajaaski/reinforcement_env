@@ -1,5 +1,5 @@
 from src.core import Player
-from src.utils import transform_frame
+from src.utils import transform_frame, discount_rewards
 import numpy as np 
 import torch
 import torch.nn as nn
@@ -19,8 +19,10 @@ class Agent(Player):
         self.color = PLAYER_COLOR
         self.speed = np.zeros(2)
         self.max_speed = 6
+        self.gamma = 0.92
         self.timestep = timestep
         self.network = Policy().to(self.device)
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr = 0.0001)
         self.previous_frames = []
         self.rewards = []
         self.log_probs = []
@@ -44,15 +46,37 @@ class Agent(Player):
             return True
     
     def move(self, action, ball_list):
-        position = self.position + action
+        speed = action.item()
+        if speed == 0:
+            action = np.array([0,2])
+        elif speed == 1:
+            action = np.array([2,0])
+        elif speed == 2:
+            action = np.array([-2,0])
+        else:
+            action = np.array([0,-2])
+
+        position = self.position + action * self.timestep 
         if self.valid_state(position, ball_list):
-            self.position += action * self.timestep 
+            self.position = position
             return True
         else:
             return False
     
     def get_action(self, state):
-        return np.random.random(2)*12 - 6
+        # Lowering resolution and to grayscale
+        frame = self.transform_frame(state) 
+        
+        # Form a state from frames
+        state = self.frames_to_state(frame).to(self.device)
+        
+        # Distribution and value from NN
+        policy_distr, _ = self.network.forward(state)
+        
+        # Take action with the highest probability 
+        action = torch.argmax(policy_distr.probs)[1] 
+
+        return action
     
     def get_training_action(self, state):
         # Resize and grascale
@@ -63,19 +87,25 @@ class Agent(Player):
         policy_distr, state_value = self.network(state)
 
         # Sample an action from the policy distribution 
-        x_action = policy_distr[0].sample() 
-        y_action = policy_distr[1].sample()
-        action = (x_action,y_action)
+        action = policy_distr.sample()[1]
 
-        log_probability = policy_distr[0].log_prob(x_action) + policy_distr[1].log_prob(y_action)
+        log_probability = policy_distr.log_prob(action)
 
         # Determine entropy
-        entropy = policy_distr[0].entropy() + policy_distr[1].entropy()
+        entropy = policy_distr.entropy()
 
         return action, log_probability, state_value, entropy
 
     
-    def reset(self):
+    def reset(self, player_position):
+        self.frames = []
+        self.position = player_position
+    
+    def save_model(self):
+        #torch.save(self.network.state_dict(), "results//{:.3f}_{}.pth".format(win_rate[episode],episode))
+        return
+        
+    def load_model(self):
         return
     
     def frames_to_state(self, current_frame):
@@ -84,6 +114,51 @@ class Agent(Player):
         frame_stack = torch.stack((self.previous_frames[0].T, current_frame.T), dim = 0)
         self.previous_frames = [current_frame]
         return frame_stack 
+    
+    def update_network(self):
+        # Transforming the agent memory into tensors
+        state_values = torch.stack(self.state_values, dim=0).squeeze().to(self.device)
+        log_probs = torch.stack(self.log_probs, dim=0).squeeze().to(self.device)
+        returns = discount_rewards(torch.tensor(self.rewards, device=self.device, dtype=torch.float), self.gamma)
+        entropies = torch.stack(self.entropies, dim=0).squeeze().to(self.device)
+        
+        # Resetting the agent's memory for a new episode
+        self.state_values = [] 
+        self.rewards = []
+        self.log_probs = []
+        self.entropies = []
+
+        # Advantage estimates:
+        state_values = state_values.T[1]
+        adv_ests = returns - state_values
+
+        # Policy loss:
+        log_probs = log_probs.T[1]
+        l_PG = -torch.mean(adv_ests.detach() * log_probs)
+
+        # Value loss:
+        l_v = F.mse_loss(state_values, returns.detach())
+
+        # Entropy loss:
+        l_H = -torch.mean(entropies)
+
+        # Total loss:
+        loss = l_PG + l_v + l_H
+
+        # Optimization
+        loss.backward()
+        nn.utils.clip_grad_norm(self.network.parameters(), .5)
+        self.optimizer.step()
+        self.optimizer.zero_grad()
+        return l_PG.item(), l_v.item(), l_H.item()
+    
+    def store_step(self, state_value, reward, log_probability, entropy):
+        # Adding the observed quantities to the agent's memory
+        self.state_values.append(state_value)
+        self.rewards.append(reward)
+        self.log_probs.append(log_probability)
+        self.entropies.append(entropy)
+
 
 class Policy(nn.Module):
 
@@ -102,8 +177,7 @@ class Policy(nn.Module):
                         nn.Linear(in_features = 20*71*71, out_features = 200),
                         nn.ReLU())
         
-        self.x_speed = nn.Linear(in_features = 200, out_features = 6)
-        self.y_speed = nn.Linear(in_features = 200, out_features = 6)
+        self.speed = nn.Linear(in_features = 200, out_features = 4)
 
         self.value = nn.Linear(in_features = 200, out_features = 1)
 
@@ -121,11 +195,9 @@ class Policy(nn.Module):
         state_value = self.value(x)
 
         # Action
-        x_speed = self.x_speed(x)
-        y_speed = self.y_speed(x)
+        speed = self.speed(x)
 
-        x_probs = F.softmax(x_speed, dim = -1)
-        y_probs = F.softmax(y_speed, dim = -1)
-        policies = Categorical(x_probs), Categorical(y_probs)
+        probs = F.softmax(speed, dim = -1)
+        policies = Categorical(probs)
 
         return policies, state_value 
