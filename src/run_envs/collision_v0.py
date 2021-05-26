@@ -22,7 +22,7 @@ def collision_v0():
         print("Cuda unavailable")
 
     # Train loop
-    episodes = 10000
+    episodes = 100000
     save_interval = 100
     actions = {} # dicitonary for actions taken
     game_duration = np.zeros(episodes) # game lengths for each episode

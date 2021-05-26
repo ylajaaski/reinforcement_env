@@ -22,7 +22,7 @@ class Agent(Player):
         self.gamma = 0.90
         self.timestep = timestep
         self.network = Policy().to(self.device)
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr = 0.001)
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr = 0.0002)
         self.previous_frames = []
         self.rewards = []
         self.log_probs = []
@@ -143,7 +143,7 @@ class Agent(Player):
         l_H = -torch.mean(entropies)
 
         # Total loss:
-        loss = l_PG + l_v + 10**(-2)*l_H
+        loss = l_PG + l_v + 10**(-1)*l_H
 
         # Optimization
         loss.backward()
