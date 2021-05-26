@@ -19,10 +19,10 @@ class Agent(Player):
         self.color = PLAYER_COLOR
         self.speed = np.zeros(2)
         self.max_speed = 6
-        self.gamma = 0.92
+        self.gamma = 0.90
         self.timestep = timestep
         self.network = Policy().to(self.device)
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr = 0.0001)
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr = 0.001)
         self.previous_frames = []
         self.rewards = []
         self.log_probs = []
@@ -177,12 +177,12 @@ class Policy(nn.Module):
                         nn.MaxPool2d(kernel_size = 2))
 
         self.fc = nn.Sequential(
-                        nn.Linear(in_features = 2*10*11*11, out_features = 200),
+                        nn.Linear(in_features = 2*10*11*11, out_features = 512),
                         nn.ReLU())
         
-        self.speed = nn.Linear(in_features = 200, out_features = 4)
+        self.speed = nn.Linear(in_features = 512, out_features = 4)
 
-        self.value = nn.Linear(in_features = 200, out_features = 1)
+        self.value = nn.Linear(in_features = 512, out_features = 1)
 
     def forward(self, state):
 

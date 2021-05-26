@@ -31,7 +31,7 @@ def collision_v0():
     actions[2] = np.zeros(episodes)
     actions[3] = np.zeros(episodes)
     agent = Agent(400,400,10,1)
-    env = Collision_v0(400,400,20,agent)
+    env = Collision_v0(400,400,30,agent)
 
     
     for episode in range(episodes):
