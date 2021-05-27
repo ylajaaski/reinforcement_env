@@ -24,7 +24,8 @@ class Collision_v0(Environment):
         assert width > 100 and height > 100
         
         # Initially the position of the agent is randomized.
-        player_position = np.array([np.random.random()*(width - 2*ball_size)+player_size, np.random.random()*(height - 2*ball_size)+player_size])
+        player_position = np.array([100,100])#np.array([np.random.random()*(width - 2*ball_size)+player_size, np.random.random()*(height - 2*ball_size)+player_size])
+        np.random.seed(0)
         if player is None:
             self.player = Debug(width, height, player_size, player_position, timestep)
         else:

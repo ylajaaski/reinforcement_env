@@ -86,7 +86,7 @@ def collision_v0():
 
         # Update network
         l_PG, l_v, l_H = agent.update_network()
-        player_position = np.array([np.random.random()*(env.width - 2*env.ball_size)+env.player_size, np.random.random()*(env.height - 2*env.ball_size)+env.player_size])
+        player_position = np.array([100,100])#np.array([np.random.random()*(env.width - 2*env.ball_size)+env.player_size, np.random.random()*(env.height - 2*env.ball_size)+env.player_size])
         agent.reset(player_position)
 
         # policy_losses[episode] = l_PG
