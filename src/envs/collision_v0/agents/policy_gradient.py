@@ -19,7 +19,7 @@ class Agent(Player):
         self.color = PLAYER_COLOR
         self.speed = np.zeros(2)
         self.max_speed = 6
-        self.gamma = 0.90
+        self.gamma = 0.99
         self.timestep = timestep
         self.network = Policy().to(self.device)
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr = 0.0002)
