@@ -83,6 +83,7 @@ class Agent(Player):
         frame = transform_frame(state, 150) # TODO: n_size = 150
 
         state = self.frames_to_state(frame).to(self.device)
+        #print(state.shape)
 
         policy_distr, state_value = self.network(state)
 
@@ -110,9 +111,9 @@ class Agent(Player):
     
     def frames_to_state(self, current_frame):
         if not self.previous_frames:
-            self.previous_frames = [current_frame]  
-        frame_stack = torch.stack((self.previous_frames[0].T, current_frame.T), dim = 0)
-        self.previous_frames = [current_frame]
+            self.previous_frames = [current_frame, current_frame, current_frame]  
+        frame_stack = torch.stack((self.previous_frames[0].T, self.previous_frames[1].T, self.previous_frames[2].T, current_frame.T), dim = 0)
+        self.previous_frames = [self.previous_frames[1], self.previous_frames[2], current_frame]
         return frame_stack 
     
     def update_network(self):
@@ -143,7 +144,7 @@ class Agent(Player):
         l_H = -torch.mean(entropies)
 
         # Total loss:
-        loss = l_PG + l_v + 10**(-1)*l_H
+        loss = l_PG + l_v + 10**(-2)*l_H
 
         # Optimization
         loss.backward()
@@ -165,7 +166,7 @@ class Policy(nn.Module):
     def __init__(self):
         super(Policy, self).__init__()
         self.conv = nn.Sequential(
-                        nn.Conv2d(in_channels = 1, out_channels =  20, kernel_size = 10, stride = 2),
+                        nn.Conv2d(in_channels = 3, out_channels =  20, kernel_size = 10, stride = 2),
                         nn.BatchNorm2d(20),
                         nn.ReLU(),
                         nn.Conv2d(in_channels = 20, out_channels =  20, kernel_size = 10, stride = 2),
@@ -177,7 +178,7 @@ class Policy(nn.Module):
                         nn.MaxPool2d(kernel_size = 2))
 
         self.fc = nn.Sequential(
-                        nn.Linear(in_features = 2*10*11*11, out_features = 512),
+                        nn.Linear(in_features = 4*10*11*11, out_features = 512),
                         nn.ReLU())
         
         self.speed = nn.Linear(in_features = 512, out_features = 4)
@@ -191,7 +192,7 @@ class Policy(nn.Module):
 
         # Fully connected layers
         #batch_size = x.shape[0]
-        x = x.reshape(1, 2*10*11*11)
+        x = x.reshape(1, 4*10*11*11)
         x = self.fc(x)
 
         # State value
