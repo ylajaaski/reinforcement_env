@@ -4,6 +4,7 @@ from src.utils import listdir_nohidden
 
 # Environments
 from src.run_envs.collision_v0 import *
+from src.run_envs.collision_v1 import *
 
 '''
 Training and testing different environments and agents is possible with this script. 
