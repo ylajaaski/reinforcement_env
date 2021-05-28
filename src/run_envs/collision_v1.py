@@ -60,7 +60,7 @@ def collision_v1():
             
             # Apply action -> get frame
             frame, reward, done, _ = env.step(action.detach())
-            video.append(observation)
+            video.append(env.state)
             
             agent.store_step(state_value, reward, log_probability, entropy)
             timesteps += 1
