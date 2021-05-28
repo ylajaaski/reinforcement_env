@@ -2,6 +2,7 @@ from src.envs.collision_v1.collision import Collision_v1
 from src.envs.collision_v1.agents.posion_gradient import Agent
 import numpy as np 
 import pandas as pd
+import torch 
 
 def collision_v1():
 
