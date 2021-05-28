@@ -144,7 +144,7 @@ class Agent(Player):
         l_H = -torch.mean(entropies)
 
         # Total loss:
-        loss = l_PG + l_v + 10**(-1)*l_H
+        loss = l_PG + l_v + l_H
 
         # Optimization
         loss.backward()
